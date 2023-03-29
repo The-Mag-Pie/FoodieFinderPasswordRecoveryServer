@@ -1,0 +1,19 @@
+﻿@page
+@using FoodieFinderPasswordRecoveryServer.Models;
+@model IndexModel
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    @foreach (var line in Model.DbContext.PasswordRecovery.Select(u => $"{u.UUID} {u.CreatedEpoch} {u.UserID}"))
+    {
+        <p>@line</p>
+    }
+    @{
+        var data = Model.Configuration.GetSection("SmtpData").Get<SmtpData>();
+        <p>@data?.Host</p>
+        <p>@data?.Login</p>
+        <p>@data?.Password</p>
+    }
+    <a href="/api/SendRecoveryEmail/6">test send email</a>
+</div>

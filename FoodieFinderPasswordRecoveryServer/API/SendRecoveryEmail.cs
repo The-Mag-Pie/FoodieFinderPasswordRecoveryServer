@@ -1,21 +1,21 @@
 ﻿using FoodieFinderPasswordRecoveryServer.Database;
 using FoodieFinderPasswordRecoveryServer.Models;
+using MailKit;
 using MailKit.Net.Smtp;
-using MailKit.Security;
 using Microsoft.AspNetCore.Mvc;
 using MimeKit;
 
 namespace FoodieFinderPasswordRecoveryServer.API
 {
-    [Route("api/SendRecoveryEmail")]
+    [Route("PasswordRecovery/api/SendRecoveryEmail")]
     [ApiController]
     public class SendRecoveryEmail : ControllerBase
     {
         private const string EmailTemplate = @"Hello {0}!<br>Here is your password recovery link: https://{1}/PasswordRecovery/NewPassword/{2}";
 
-        private AppDbContext _dbContext;
-        private SmtpData _smtpData;
-        private string _serverDomain;
+        private readonly AppDbContext _dbContext;
+        private readonly SmtpData _smtpData;
+        private readonly string _serverDomain;
 
         public SendRecoveryEmail(AppDbContext dbContext, IConfiguration configuration)
         {
@@ -29,7 +29,30 @@ namespace FoodieFinderPasswordRecoveryServer.API
         [HttpGet("{userId}")]
         public string Get(int userId)
         {
-            return _sendEmail("bartek.sroka@op.pl", "hshshshhs").Result.ToString();
+            User userData;
+
+            try
+            {
+                userData = _dbContext.User.Where(u => u.ID == userId).Single();
+            }
+            catch
+            {
+                return false.ToString();
+            }
+
+            var uuid = Guid.NewGuid().ToString();
+            var epoch = DateTimeOffset.Now.ToUnixTimeSeconds();
+
+            _dbContext.PasswordRecovery.Add(new()
+            {
+                UUID = uuid,
+                CreatedEpoch = epoch,
+                UserID = userId
+            });
+
+            _dbContext.SaveChanges();
+
+            return _sendEmail(userData.Email, uuid).Result.ToString();
         }
 
         private async Task<bool> _sendEmail(string email, string uuid)
@@ -45,9 +68,8 @@ namespace FoodieFinderPasswordRecoveryServer.API
                 Text = string.Format(EmailTemplate, email, _serverDomain, uuid)
             };
 
-            using var client = new SmtpClient();
-            client.Connect(_smtpData.Host, _smtpData.Port, false);
-            //client.AuthenticationMechanisms.Clear();
+            using var client = new SmtpClient(new ProtocolLogger(Console.OpenStandardOutput()));
+            client.Connect(_smtpData.Host, _smtpData.Port, true);
             client.Authenticate(_smtpData.Login, _smtpData.Password);
             client.MessageSent += (s, e) => sent = true;
 
@@ -55,27 +77,6 @@ namespace FoodieFinderPasswordRecoveryServer.API
             client.Disconnect(true);
 
             return sent;
-
-            //bool sent = false;
-
-            //using var smtpClient = new SmtpClient(_smtpData.Host, 465);
-            //smtpClient.Credentials = new NetworkCredential(_smtpData.Login, _smtpData.Password);
-            //smtpClient.EnableSsl = true;
-
-            //var from = new MailAddress(_smtpData.Email, "FoodieFinder");
-            //var to = new MailAddress(email);
-
-            //using var message = new MailMessage(from, to);
-            //message.Body = string.Format(EmailTemplate, email, _serverDomain, uuid);
-            //message.BodyEncoding = Encoding.UTF8;
-            //message.Subject = "FoodieFinder Password Recovery";
-            //message.SubjectEncoding = Encoding.UTF8;
-
-            //smtpClient.SendCompleted += (s, e) => sent = true;
-
-            //smtpClient.Send(message);
-
-            //return sent;
         }
     }
 }

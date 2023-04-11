@@ -37,8 +37,7 @@ namespace FoodieFinderPasswordRecoveryServer.Pages
                 return NotFound("User or password recovery request not found");
             }
 
-            var dateTimeDiff = DateTimeOffset.Now - DateTimeOffset.FromUnixTimeSeconds(passwordRecoveryData.CreatedEpoch);
-            if (dateTimeDiff.Minutes > 15)
+            if (Helpers.IsExpired(passwordRecoveryData.CreatedEpoch))
             {
                 _dbContext.PasswordRecovery.Remove(passwordRecoveryData);
                 _dbContext.SaveChanges();
@@ -51,7 +50,7 @@ namespace FoodieFinderPasswordRecoveryServer.Pages
             _dbContext.PasswordRecovery.Remove(passwordRecoveryData);
             _dbContext.SaveChanges();
 
-            return Redirect("/PasswordRecovery/PasswordChanged");
+            return Redirect("/PasswordChanged");
         }
 
         private static string EncryptPassword(string password)

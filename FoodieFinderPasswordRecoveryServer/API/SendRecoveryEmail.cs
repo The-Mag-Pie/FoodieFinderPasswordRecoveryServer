@@ -7,11 +7,11 @@ using MimeKit;
 
 namespace FoodieFinderPasswordRecoveryServer.API
 {
-    [Route("PasswordRecovery/api/SendRecoveryEmail")]
+    [Route("api/SendRecoveryEmail")]
     [ApiController]
     public class SendRecoveryEmail : ControllerBase
     {
-        private const string EmailTemplate = @"Hello {0}!<br>Here is your password recovery link: https://{1}/PasswordRecovery/NewPassword/{2}";
+        private const string EmailTemplate = @"Hello {0}!<br>Here is your password recovery link: https://{1}/NewPassword/{2}";
 
         private readonly AppDbContext _dbContext;
         private readonly SmtpData _smtpData;

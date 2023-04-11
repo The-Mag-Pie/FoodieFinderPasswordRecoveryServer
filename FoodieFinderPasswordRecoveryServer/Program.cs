@@ -1,4 +1,6 @@
+using FoodieFinderPasswordRecoveryServer.BackgroundTasks;
 using FoodieFinderPasswordRecoveryServer.Database;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 
 namespace FoodieFinderPasswordRecoveryServer
@@ -18,6 +20,10 @@ namespace FoodieFinderPasswordRecoveryServer
 
             var app = builder.Build();
 
+            // Start background tasks
+            using var scope = app.Services.CreateScope();
+            DeleteExpiredEntries.StartThread(scope.ServiceProvider.GetRequiredService<AppDbContext>());
+
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
@@ -26,7 +32,13 @@ namespace FoodieFinderPasswordRecoveryServer
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            // Headers from Apache proxy
+            app.UseForwardedHeaders(new ForwardedHeadersOptions()
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+
+            //app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();

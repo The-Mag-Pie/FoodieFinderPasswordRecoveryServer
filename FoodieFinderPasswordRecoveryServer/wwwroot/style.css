@@ -1,0 +1,77 @@
+﻿body {
+    background: url("Food.png") no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 100vh;
+    font-family: Poppins,sans-serif;
+    color: white;
+}
+
+.border-container {
+    box-sizing: border-box;
+    background: rgba(242, 221, 186, 0.36);
+    border: 7px solid #F6DEBC;
+    backdrop-filter: blur(10px);
+    /* Note: backdrop-filter has minimal browser support */
+
+    border-radius: 90px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    row-gap: 30px;
+    padding: 50px 50px;
+}
+
+.form-title {
+    text-align: center;
+    margin: 10px 0;
+}
+
+.center-container {
+    text-align: center;
+    margin: auto;
+    width: 250px;
+}
+
+.completed-image {
+    background: url(completed.svg);
+    background-size: cover;
+    height: 250px;
+}
+
+.center-container .password-input:nth-child(2) {
+    margin: 20px 0 0 0;
+}
+
+.password-input {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+}
+
+.password-input p {
+    margin: 0 0 5px 10px;
+    font-weight: bold;
+}
+
+.password-input input {
+    border: none;
+    border-radius: 20px;
+    padding: 10px 15px;
+}
+
+.submit-button {
+    text-align: center;
+    background: #FFB742;
+    padding: 20px 30px 20px 30px;
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-size: large;
+    font-weight: bold;
+}

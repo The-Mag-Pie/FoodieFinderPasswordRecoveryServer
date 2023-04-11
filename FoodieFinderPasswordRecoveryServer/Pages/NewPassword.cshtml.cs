@@ -2,6 +2,7 @@ using FoodieFinderPasswordRecoveryServer.Database;
 using FoodieFinderPasswordRecoveryServer.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace FoodieFinderPasswordRecoveryServer.Pages
 {
@@ -29,8 +30,7 @@ namespace FoodieFinderPasswordRecoveryServer.Pages
                 return NotFound("User or password recovery request not found");
             }
 
-            var dateTimeDiff = DateTimeOffset.Now - DateTimeOffset.FromUnixTimeSeconds(PasswordRecoveryData.CreatedEpoch);
-            if (dateTimeDiff.Minutes > 15)
+            if (Helpers.IsExpired(PasswordRecoveryData.CreatedEpoch))
             {
                 _dbContext.PasswordRecovery.Remove(PasswordRecoveryData);
                 _dbContext.SaveChanges();

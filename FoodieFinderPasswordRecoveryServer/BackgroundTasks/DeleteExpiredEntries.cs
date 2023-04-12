@@ -4,6 +4,8 @@ namespace FoodieFinderPasswordRecoveryServer.BackgroundTasks
 {
     public class DeleteExpiredEntries
     {
+        private const int SleepMinutes = 60;
+
         public static void StartThread(AppDbContext dbContext)
         {
             new Thread(() =>
@@ -30,7 +32,8 @@ namespace FoodieFinderPasswordRecoveryServer.BackgroundTasks
                     }
                     finally
                     {
-                        Thread.Sleep(60 * 1000);
+                        Console.WriteLine($"Waiting {SleepMinutes} minutes until next cleaning...");
+                        Thread.Sleep(SleepMinutes * 60 * 1000);
                     }
                 }
             }).Start();

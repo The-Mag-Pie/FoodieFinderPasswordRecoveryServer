@@ -37,11 +37,13 @@ namespace FoodieFinderPasswordRecoveryServer.Pages
                 return NotFound("User or password recovery request not found");
             }
 
+            if (userData.EncryptedPassword == "auth0")
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, "Cannot change password for user that is using Auth0 authentication method");
+            }
+
             if (Helpers.IsExpired(passwordRecoveryData.CreatedEpoch))
             {
-                _dbContext.PasswordRecovery.Remove(passwordRecoveryData);
-                _dbContext.SaveChanges();
-
                 return StatusCode(StatusCodes.Status403Forbidden, "Password recovery request expired");
             }
 

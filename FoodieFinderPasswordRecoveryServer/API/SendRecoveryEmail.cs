@@ -34,6 +34,10 @@ namespace FoodieFinderPasswordRecoveryServer.API
             try
             {
                 userData = _dbContext.User.Where(u => u.ID == userId).Single();
+                if (userData.EncryptedPassword == "auth0")
+                {
+                    throw new();
+                }
             }
             catch
             {
